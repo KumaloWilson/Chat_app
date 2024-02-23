@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_string_interpolations, prefer_typing_uninitialized_variables
 
+import 'package:chat_app/app/utils/components/showimage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -80,25 +81,37 @@ class SingleMessage extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.42,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.30,
-                                        decoration: BoxDecoration(
-                                            border:
-                                                Border.all(color: Colors.black),
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topRight: Radius.circular(18),
-                                              topLeft: Radius.circular(18),
-                                              bottomLeft: Radius.circular(18),
-                                            ),
-                                            image: DecorationImage(
-                                                image: NetworkImage(message),
-                                                fit: BoxFit.fill)),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ShowImage(
+                                                    imageUrl: message),
+                                              ));
+                                        },
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.42,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.30,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.black),
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                topRight: Radius.circular(18),
+                                                topLeft: Radius.circular(18),
+                                                bottomLeft: Radius.circular(18),
+                                              ),
+                                              image: DecorationImage(
+                                                  image: NetworkImage(message),
+                                                  fit: BoxFit.fill)),
+                                        ),
                                       )
                                     ],
                                   ),

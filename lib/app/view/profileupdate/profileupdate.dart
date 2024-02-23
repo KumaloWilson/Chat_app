@@ -210,16 +210,16 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                 icon: Icon(EneftyIcons.document_upload_bold)),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListTile(
-                            leading: Icon(Ionicons.person),
-                            title: Text('p r e m n a d h @ g mail.com'),
-                            trailing: IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.update_disabled)),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.all(8.0),
+                        //   child: ListTile(
+                        //     leading: Icon(Ionicons.person),
+                        //     title: Text('p r e m n a d h @ g mail.com'),
+                        //     trailing: IconButton(
+                        //         onPressed: () {},
+                        //         icon: Icon(Icons.update_disabled)),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

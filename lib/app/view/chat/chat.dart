@@ -95,7 +95,7 @@ class _ChatsState extends State<Chats> with WidgetsBindingObserver {
                       if (snapshot.hasData) {
                         var friend = snapshot.data;
                         return ListTile(
-                          trailing: Text(friend['status']),
+                          // trailing: Text(friend['status']),
                           leading: CircleAvatar(
                             radius: 40,
                             child: CachedNetworkImage(

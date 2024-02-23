@@ -17,7 +17,6 @@ class MessageTextField extends StatefulWidget {
 class _MessageTextFieldState extends State<MessageTextField> {
   TextEditingController controller = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ChatBloc, ChatState>(
@@ -50,10 +49,6 @@ class _MessageTextFieldState extends State<MessageTextField> {
                               .add(BottomSheetEvent());
                         },
                         icon: const Icon(Ionicons.attach)),
-                    prefixIcon: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Ionicons.happy),
-                    ),
                     border: OutlineInputBorder(
                         borderSide: const BorderSide(width: 0),
                         gapPadding: 10,
