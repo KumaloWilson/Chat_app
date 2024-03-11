@@ -55,6 +55,8 @@ dependencies:
   url_launcher: ^6.2.4
   intl: ^0.18.1
   shimmer: ^3.0.0
+  awesome_notifications: ^0.8.2
+  firebase_messaging: ^14.7.19
   
 
 dev_dependencies:

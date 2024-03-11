@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 // ignore_for_file: sort_child_properties_last, avoid_unnecessary_containers, unnecessary_overrides
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/app/utils/components/skelton.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
