@@ -16,34 +16,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> backgroundHandler(RemoteMessage message) async {
+  RemoteNotification? notification = message.notification;
+  AndroidNotification? android = message.notification?.android;
   String? title = message.notification!.title;
   String? body = message.notification!.body;
-  AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 123,
-        channelKey: "call_channel",
-        color: Colors.white,
-        title: title,
-        body: body,
-        category: NotificationCategory.Call,
-        wakeUpScreen: true,
-        autoDismissible: false,
-        backgroundColor: Colors.orange,
-      ),
-      actionButtons: [
-        NotificationActionButton(
-          key: "ACCEPT",
-          label: 'Accept Call',
-          color: Colors.green,
-          autoDismissible: true,
+  if (notification != null && android != null) {
+    AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 123,
+          channelKey: "call_channel",
+          color: Colors.white,
+          title: title,
+          body: body,
+          category: NotificationCategory.Call,
+          wakeUpScreen: true,
+          autoDismissible: false,
+          backgroundColor: Colors.orange,
         ),
-        NotificationActionButton(
-          key: "REJECT",
-          label: 'Reject Call',
-          color: Colors.red,
-          autoDismissible: true,
-        ),
-      ]);
+        actionButtons: [
+          NotificationActionButton(
+            key: "ACCEPT",
+            label: 'Accept Call',
+            color: Colors.green,
+            autoDismissible: true,
+          ),
+          NotificationActionButton(
+            key: "REJECT",
+            label: 'Reject Call',
+            color: Colors.red,
+            autoDismissible: true,
+          ),
+        ]);
+  }
 
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: NotificationController.onActionReceivedMethod,
@@ -70,6 +74,10 @@ void main() async {
       defaultRingtoneType: DefaultRingtoneType.Ringtone,
     )
   ]);
+  bool permissons = await AwesomeNotifications().isNotificationAllowed();
+  if (!permissons) {
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
   FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

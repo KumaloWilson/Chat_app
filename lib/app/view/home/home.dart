@@ -6,6 +6,8 @@ import 'package:chat_app/app/view/callLog/calls.dart';
 import 'package:chat_app/app/view/chat/chat.dart';
 import 'package:chat_app/app/view/profile/profile.dart';
 import 'package:chat_app/app/view/status/status.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,38 +27,54 @@ class _HomeState extends State<Home> {
     const Status(),
     const Profile(),
   ];
+  User? user = FirebaseAuth.instance.currentUser;
+
+  void updateFcmToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    await FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user!.uid)
+        .update({'token': token});
+  }
+
   @override
   void initState() {
     super.initState();
+    updateFcmToken();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
       String? title = message.notification!.title;
       String? body = message.notification!.body;
-      AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: 123,
-            channelKey: "call_channel",
-            color: Colors.white,
-            title: title,
-            body: body,
-            category: NotificationCategory.Call,
-            wakeUpScreen: true,
-            autoDismissible: false,
-            backgroundColor: Colors.orange,
-          ),
-          actionButtons: [
-            NotificationActionButton(
-              key: "ACCEPT",
-              label: 'Accept Call',
-              color: Colors.green,
-              autoDismissible: true,
+      if (notification != null && android != null) {
+        AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: 123,
+              channelKey: "call_channel",
+              color: Colors.white,
+              title: title,
+              body: body,
+              category: NotificationCategory.Call,
+              wakeUpScreen: true,
+              autoDismissible: false,
+              backgroundColor: Colors.orange,
             ),
-            NotificationActionButton(
-              key: "REJECT",
-              label: 'Reject Call',
-              color: Colors.red,
-              autoDismissible: true,
-            ),
-          ]);
+            actionButtons: [
+              NotificationActionButton(
+                key: "ACCEPT",
+                label: 'Accept Call',
+                color: Colors.green,
+                autoDismissible: true,
+              ),
+              NotificationActionButton(
+                key: "REJECT",
+                label: 'Reject Call',
+                color: Colors.red,
+                autoDismissible: true,
+              ),
+            ]);
+      }
+
       AwesomeNotifications().setListeners(
         onActionReceivedMethod: NotificationController.onActionReceivedMethod,
         onNotificationCreatedMethod:

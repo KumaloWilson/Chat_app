@@ -57,6 +57,7 @@ dependencies:
   shimmer: ^3.0.0
   awesome_notifications: ^0.8.2
   firebase_messaging: ^14.7.19
+  http: ^1.2.0
   
 
 dev_dependencies:
