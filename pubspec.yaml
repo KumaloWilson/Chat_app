@@ -58,6 +58,9 @@ dependencies:
   awesome_notifications: ^0.8.2
   firebase_messaging: ^14.7.19
   http: ^1.2.0
+  agora_rtc_engine: ^5.0.0
+  permission_handler: ^10.2.0
+  get: 
   
 
 dev_dependencies:

@@ -1,16 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/app/controller/chat/bloc/chat_bloc.dart';
+import 'package:chat_app/app/utils/agora/callpage.dart';
 import 'package:chat_app/app/utils/components/message_textfield.dart';
 import 'package:chat_app/app/utils/components/single_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatScreen extends StatefulWidget {
   final String friendId;
@@ -161,8 +162,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> sendPushNotification(String token, String name) async {
+    String channelName = generateRandomString(8);
+    String title = "Incoming Call1a2b3c4d5e$channelName";
     try {
-      http.Response response = await http.post(
+      http.Response response = await http
+          .post(
         Uri.parse('https://fcm.googleapis.com/fcm/send'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -173,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
           <String, dynamic>{
             'notification': <String, dynamic>{
               'body': name,
-              'title': 'incoming call',
+              'title': title,
             },
             'priority': 'high',
             'data': <String, dynamic>{
@@ -184,11 +188,30 @@ class _ChatScreenState extends State<ChatScreen> {
             'to': token,
           },
         ),
-      );
+      )
+          .whenComplete(() async {
+        await [Permission.camera, Permission.microphone]
+            .request()
+            .then((value) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Call(channelName: channelName),
+              ));
+        });
+      });
 
       response;
     } catch (e) {
       print("Error: ${e.toString()}");
     }
+  }
+
+  String generateRandomString(int len) {
+    var r = Random();
+    const _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
+        .join();
   }
 }

@@ -4,6 +4,7 @@ import 'package:chat_app/app/controller/chat/bloc/chat_bloc.dart';
 import 'package:chat_app/app/controller/home/bloc/home_bloc.dart';
 import 'package:chat_app/app/controller/profile/bloc/profile_bloc.dart';
 import 'package:chat_app/app/controller/search/bloc/search_bloc.dart';
+import 'package:chat_app/app/utils/agora/callpage.dart';
 import 'package:chat_app/app/utils/constants/app_theme.dart';
 import 'package:chat_app/app/utils/constants/notification.dart';
 import 'package:chat_app/app/view/home/home.dart';
@@ -14,12 +15,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-Future<void> backgroundHandler(RemoteMessage message) async {
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> backgroundHandler(
+  RemoteMessage message,
+) async {
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
-  String? title = message.notification!.title;
   String? body = message.notification!.body;
+  String? title = message.notification!.title!.split('1a2b3c4d5e').first;
+  String? channelName = message.notification!.title!.split('1a2b3c4d5e').last;
   if (notification != null && android != null) {
     AwesomeNotifications().createNotification(
         content: NotificationContent(
@@ -49,8 +58,23 @@ Future<void> backgroundHandler(RemoteMessage message) async {
         ]);
   }
 
+  @pragma("vm:entry-point")
+  Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {
+    if (receivedAction.buttonKeyPressed == 'ACCEPT') {
+      await [Permission.camera, Permission.microphone].request().then((value) {
+        Get.offAll(() => Call(channelName: channelName));
+      });
+    } else if (receivedAction.buttonKeyPressed == 'REJECT') {
+      Get.snackbar("Rejected", "Call from $body is rejected",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent);
+    } else {
+      print("Clicked on notification");
+    }
+  }
+
   AwesomeNotifications().setListeners(
-    onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    onActionReceivedMethod: onActionReceivedMethod,
     onNotificationCreatedMethod:
         NotificationController.onNotificationCreatedMethod,
     onDismissActionReceivedMethod:
@@ -113,7 +137,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
