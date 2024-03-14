@@ -98,7 +98,7 @@ class _CallState extends State<Call> {
         channelId: widget.channelName,
       );
     } else {
-      return const Text("Waiting for other user to join");
+      return const Text("Waiting for other user to joining klklkldkflkldkfdfk");
     }
   }
 
