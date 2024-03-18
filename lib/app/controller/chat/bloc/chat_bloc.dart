@@ -22,6 +22,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LocationSentEvent>(locationSentEvent);
     on<CameraImagesSentEvent>(cameraImagesSentEvent);
     on<VideoCallButtonClickedEvent>(videoCallButtonClickedEvent);
+    on<AudioCallButtonClickedEvent>(audioCallButtonClickedEvent);
+    on<StickerSentEvent>(stickerSentEvent);
   }
 
   FutureOr<void> chatShareEvent(
@@ -309,5 +311,65 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     } catch (error) {
       print("Error fetching user data: $error");
     }
+  }
+
+  FutureOr<void> audioCallButtonClickedEvent(
+      AudioCallButtonClickedEvent event, Emitter<ChatState> emit) async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(event.friendId)
+          .get();
+      emit(AudioCallWorkingState(
+          token: snapshot['token'], name: snapshot['name']));
+    } catch (error) {
+      print("Error fetching user data: $error");
+    }
+  }
+
+  FutureOr<void> stickerSentEvent(
+      StickerSentEvent event, Emitter<ChatState> emit) async {
+    await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(event.currentId)
+        .collection('messages')
+        .doc(event.friendId)
+        .collection('chats')
+        .add({
+      "senderId": event.currentId,
+      "receiverId": event.friendId,
+      "message": event.message,
+      "type": "sticker",
+      "date": DateTime.now(),
+    });
+
+    await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(event.friendId)
+        .collection('messages')
+        .doc(event.currentId)
+        .collection('chats')
+        .add({
+      "senderId": event.currentId,
+      "receiverId": event.friendId,
+      "message": event.message,
+      "type": "sticker",
+      "date": DateTime.now(),
+    });
+
+    // Update last message
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(event.currentId)
+        .collection('messages')
+        .doc(event.friendId)
+        .set({'last_msg': event.message});
+
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(event.friendId)
+        .collection('messages')
+        .doc(event.currentId)
+        .set({'last_msg': event.message});
   }
 }

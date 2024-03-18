@@ -1,11 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors, unnecessary_string_interpolations, unnecessary_brace_in_string_interps
 // ignore_for_file: unrelated_type_equality_checks, camel_case_types
 import 'package:chat_app/app/controller/profile/bloc/profile_bloc.dart';
+import 'package:chat_app/app/utils/components/profilepageshimmer.dart';
 import 'package:chat_app/app/view/login/login.dart';
 import 'package:chat_app/app/view/profileupdate/profileupdate.dart';
+import 'package:enefty_icons/enefty_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -42,6 +46,12 @@ class _ProfileState extends State<Profile> {
                 builder: (context) =>
                     ProfileUpdate(imageUrl: imageUrl!, name: name!, id: id!),
               ));
+        } else if (state is UserDeletedState) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ));
         }
       },
       builder: (context, state) {
@@ -58,7 +68,7 @@ class _ProfileState extends State<Profile> {
                     BlocProvider.of<ProfileBloc>(context)
                         .add(NavigateToprofileUpdatePageEvent());
                   },
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(EneftyIcons.gallery_edit_outline),
                 ),
               ],
             ),
@@ -81,17 +91,20 @@ class _ProfileState extends State<Profile> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                        color: Colors.blue[50],
+                        color: Colors.grey[100],
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
+                          topLeft: Radius.circular(60),
+                          topRight: Radius.circular(60),
                         )),
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
                         ProfileMenuWidget(
                           title: 'D e l e t e  a c c o u n t',
-                          onpress: () {},
+                          onpress: () {
+                            BlocProvider.of<ProfileBloc>(context)
+                                .add(DeleteButtonClickedEvent());
+                          },
                           icon: Ionicons.trash_bin_outline,
                         ),
                         ProfileMenuWidget(
@@ -115,7 +128,7 @@ class _ProfileState extends State<Profile> {
             ),
           );
         }
-        return Scaffold();
+        return ProfileSkeletonLoadingIndicator();
       },
     );
   }

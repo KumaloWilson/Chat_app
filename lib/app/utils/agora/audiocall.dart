@@ -6,19 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 
-class Call extends StatefulWidget {
+class AudioCall extends StatefulWidget {
   final String channelName;
 
-  const Call({Key? key, required this.channelName}) : super(key: key);
+  const AudioCall({Key? key, required this.channelName}) : super(key: key);
 
   @override
-  State<Call> createState() => _CallState();
+  State<AudioCall> createState() => _AudioCallState();
 }
 
-class _CallState extends State<Call> {
+class _AudioCallState extends State<AudioCall> {
   late RtcEngine _engine;
-  late int streamId;
-  bool muted = false, loading = false;
+  bool muted = false;
   int _remoteUid = 0;
 
   @override
@@ -28,13 +27,11 @@ class _CallState extends State<Call> {
   }
 
   Future<void> initializeAgora() async {
-    setState(() {
-      loading = true;
-    });
     _engine = await RtcEngine.createWithContext(RtcEngineContext(appId));
-    await _engine.enableVideo();
     await _engine.setChannelProfile(ChannelProfile.Communication);
-    streamId = (await _engine.createDataStream(false, false))!;
+    await _engine.enableLocalAudio(true); // Enable local audio
+    await _engine.setDefaultAudioRouteToSpeakerphone(
+        true); // Set default audio route to speakerphone
     _engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) {
         if (kDebugMode) {
@@ -42,7 +39,7 @@ class _CallState extends State<Call> {
         }
       },
       userJoined: (uid, elapsed) {
-        //when a new user joined the uid update here
+        // When a new user joined, update the uid here
         print("UserJoined: $uid");
         setState(() {
           _remoteUid = uid;
@@ -52,7 +49,7 @@ class _CallState extends State<Call> {
         if (kDebugMode) {
           print("Useroffline: $uid");
         }
-        //when the user leaves the channel update the uid
+        // When the user leaves the channel, update the uid
         setState(() {
           _remoteUid = 0;
         });
@@ -70,15 +67,6 @@ class _CallState extends State<Call> {
             Center(
               child: _renderRemoteView(),
             ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Container(
-                width: 100,
-                height: 130,
-                margin: const EdgeInsets.only(left: 15, top: 15),
-                child: _renderLocalView(),
-              ),
-            ),
             _toolbar(),
           ],
         ),
@@ -86,20 +74,9 @@ class _CallState extends State<Call> {
     );
   }
 
-  Widget _renderLocalView() {
-    return const RtcLocalView.SurfaceView();
-  }
-
   Widget _renderRemoteView() {
-    //which will display the remote view of the user
-    if (_remoteUid != 0) {
-      return RtcRemoteView.SurfaceView(
-        uid: _remoteUid,
-        channelId: widget.channelName,
-      );
-    } else {
-      return const Text("Waiting for other user to joining");
-    }
+    // Display the remote view of the user
+    return const SizedBox(); // Return an empty SizedBox to avoid showing video
   }
 
   Widget _toolbar() {
@@ -137,20 +114,6 @@ class _CallState extends State<Call> {
               size: 50,
             ),
           ),
-          RawMaterialButton(
-            onPressed: () {
-              _onSwitchCamera();
-            },
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(5),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            child: const Icon(
-              Icons.switch_camera,
-              color: Colors.blue,
-              size: 40,
-            ),
-          ),
         ],
       ),
     );
@@ -169,9 +132,5 @@ class _CallState extends State<Call> {
         builder: (context) => Home(),
       ));
     });
-  }
-
-  void _onSwitchCamera() {
-    _engine.switchCamera();
   }
 }

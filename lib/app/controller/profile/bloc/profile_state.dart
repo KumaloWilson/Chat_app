@@ -42,3 +42,5 @@ class ProfileImagePickedSuccessState extends ProfileState {
 class ProfileImagePickedErrorState extends ProfileState{}
 
 class ProfileImageUpdatedSuccessState extends ProfileState{}
+
+class UserDeletedState extends ProfileState{}

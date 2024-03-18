@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chat_app/app/controller/chat/bloc/chat_bloc.dart';
 import 'package:chat_app/app/view/chatScreen/chatScreen.dart';
 import 'package:chat_app/app/view/search/Search.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Chats extends StatefulWidget {
   const Chats({Key? key}) : super(key: key);
@@ -19,6 +20,7 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends State<Chats> {
   User? user = FirebaseAuth.instance.currentUser;
+  String? lastMessageTime;
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +65,52 @@ class _ChatsState extends State<Chats> {
                       if (snapshot.hasData) {
                         var friend = snapshot.data;
                         return ListTile(
-                          leading: CircleAvatar(
-                            radius: 40,
-                            child: CachedNetworkImage(
-                              imageUrl: friend['image'],
-                              placeholder: (conteext, url) =>
-                                  const CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.error,
+                          trailing: StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection('Users')
+                                .doc(user!.uid)
+                                .collection('messages')
+                                .doc(friendId)
+                                .collection('chats')
+                                .orderBy('date', descending: true)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final currentTime =
+                                    snapshot.data!.docs[index]['date'];
+                                lastMessageTime =
+                                    timeago.format(currentTime.toDate());
+                                return Text(
+                                  lastMessageTime!,
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 11),
+                                );
+                              }
+                              return const CircularProgressIndicator();
+                            },
+                          ),
+                          leading: Container(
+                            width: 50,
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: CachedNetworkImage(
+                                imageUrl: friend['image'],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: imageProvider,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              height: 50,
                             ),
                           ),
                           title: Text(friend['name']),
@@ -88,7 +126,6 @@ class _ChatsState extends State<Chats> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ChatScreen(
-                                    
                                       friendId: friend['uid'],
                                       friendName: friend['name'],
                                       friendImage: friend['image']),

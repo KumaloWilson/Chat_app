@@ -6,11 +6,14 @@ import 'package:chat_app/app/controller/chat/bloc/chat_bloc.dart';
 import 'package:chat_app/app/utils/agora/callpage.dart';
 import 'package:chat_app/app/utils/components/message_textfield.dart';
 import 'package:chat_app/app/utils/components/single_message.dart';
+import 'package:chat_app/app/utils/services/sentpushnotification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -43,36 +46,87 @@ class _ChatScreenState extends State<ChatScreen> {
       listener: (context, state) {
         if (state is VideoCallWorkingState) {
           sendPushNotification(state.token, state.name);
-        }
+        } else if (state is AudioCallWorkingState) {}
       },
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.teal,
+            backgroundColor: Colors.grey[100],
             actions: [
               IconButton(
-                icon: const Icon(Icons.video_call),
+                icon: const Icon(Ionicons.videocam_outline),
                 onPressed: () {
                   BlocProvider.of<ChatBloc>(context).add(
                       VideoCallButtonClickedEvent(friendId: widget.friendId));
                 },
               ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Delete Conversation'),
+                          content: const Text(
+                              'Are you sure you want to delete this conversation?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                deleteConversation();
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(Ionicons.trash_bin_outline),
+                      title: Text('Delete'),
+                    ),
+                  ),
+                ],
+              )
             ],
             title: Row(
               children: [
-                CircleAvatar(
-                  radius: 25,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.friendImage,
-                    placeholder: (conteext, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(
-                      Icons.error,
+                Container(
+                  width: 50,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.friendImage,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                      imageBuilder: (context, imageProvider) => Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: imageProvider,
+                          ),
+                        ),
+                      ),
                     ),
-                    height: 50,
                   ),
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(width: 10),
                 Text(
                   widget.friendName,
                   style: const TextStyle(fontSize: 20),
@@ -161,57 +215,29 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> sendPushNotification(String token, String name) async {
-    String channelName = generateRandomString(8);
-    String title = "Incoming Call1a2b3c4d5e$channelName";
+  void deleteConversation() async {
     try {
-      http.Response response = await http
-          .post(
-        Uri.parse('https://fcm.googleapis.com/fcm/send'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'key=AAAA5XyTTng:APA91bHpzK2s_wbp6vhJQQ4z7pPmkiFxRViQarMoB7Ujjai_bSfMZ1eZ1v6Ad9smPPoeHylP3bFG7gwwlDhznN9hW47Uiz4e7hxrm03EQcTz2XtA4ZrhMc-jr4rYvtnFRp6n8ZImSGz2',
-        },
-        body: jsonEncode(
-          <String, dynamic>{
-            'notification': <String, dynamic>{
-              'body': name,
-              'title': title,
-            },
-            'priority': 'high',
-            'data': <String, dynamic>{
-              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-              'id': '1',
-              'status': 'done'
-            },
-            'to': token,
-          },
-        ),
-      )
-          .whenComplete(() async {
-        await [Permission.camera, Permission.microphone]
-            .request()
-            .then((value) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Call(channelName: channelName),
-              ));
-        });
-      });
+      // Get a reference to the collection
+      CollectionReference<Map<String, dynamic>> collectionReference =
+          FirebaseFirestore.instance
+              .collection('Users')
+              .doc(user!.uid)
+              .collection('messages')
+              .doc(widget.friendId)
+              .collection('chats');
 
-      response;
+      // Fetch the documents within the collection
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await collectionReference.get();
+
+      // Delete each document one by one
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+          in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+      print('Documents deleted successfully.');
     } catch (e) {
-      print("Error: ${e.toString()}");
+      print('Error deleting documents: $e');
     }
-  }
-
-  String generateRandomString(int len) {
-    var r = Random();
-    const _chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
-        .join();
   }
 }

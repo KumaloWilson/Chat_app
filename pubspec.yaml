@@ -61,6 +61,8 @@ dependencies:
   agora_rtc_engine: ^5.0.0
   permission_handler: ^10.2.0
   get: 
+  emoji_picker_flutter: ^1.6.3
+  timeago: ^3.6.1
   
 
 dev_dependencies:

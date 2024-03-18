@@ -20,6 +20,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileDataCancelEvent>(profileDataCancelEvent);
     on<ProfileImageUpdateEvent>(profileImageUpdateEvent);
     on<ProfileSaveToDbEvent>(profileSaveToDbEvent);
+    on<DeleteButtonClickedEvent>(deleteButtonClickedEvent);
   }
 
   FutureOr<void> louOutEvent(LouOutEvent event, Emitter<ProfileState> emit) {
@@ -101,6 +102,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(ProfileImageUpdatedSuccessState());
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  FutureOr<void> deleteButtonClickedEvent(
+      DeleteButtonClickedEvent event, Emitter<ProfileState> emit) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    try {
+      if (user != null) {
+        user.delete();
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .delete();
+        emit(UserDeletedState());
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

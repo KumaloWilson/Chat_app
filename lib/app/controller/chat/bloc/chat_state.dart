@@ -20,3 +20,12 @@ class VideoCallWorkingState extends ChatState {
     required this.name,
   });
 }
+
+class AudioCallWorkingState extends ChatState {
+  final String token;
+  final String name;
+  AudioCallWorkingState({
+    required this.token,
+    required this.name,
+  });
+}

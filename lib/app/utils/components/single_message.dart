@@ -2,10 +2,10 @@
 
 import 'package:chat_app/app/utils/components/showimage.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class SingleMessage extends StatelessWidget {
+class SingleMessage extends StatefulWidget {
   final type;
   final currentTime;
   final String message;
@@ -15,27 +15,33 @@ class SingleMessage extends StatelessWidget {
       required this.isMe,
       required this.currentTime,
       required this.type});
+
+  @override
+  State<SingleMessage> createState() => _SingleMessageState();
+}
+
+class _SingleMessageState extends State<SingleMessage> {
+  String? lastMessageTime;
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = currentTime.toDate();
-    String formattedTime = DateFormat.Hm().format(dateTime);
+    lastMessageTime = timeago.format(widget.currentTime.toDate());
     return Column(
       children: [
         Row(
           mainAxisAlignment:
-              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                type == 'text'
+                widget.type == 'text'
                     ? Container(
                         padding: const EdgeInsets.all(10),
                         margin: const EdgeInsets.only(
                             top: 10, bottom: 2, left: 10, right: 10),
                         constraints: const BoxConstraints(maxWidth: 200),
                         decoration: BoxDecoration(
-                            color: isMe
+                            color: widget.isMe
                                 ? const Color(0xFF20A090)
                                 : const Color.fromARGB(255, 234, 242, 248),
                             borderRadius: const BorderRadius.only(
@@ -44,29 +50,32 @@ class SingleMessage extends StatelessWidget {
                               bottomRight: Radius.circular(15),
                             )),
                         child: Text(
-                          message,
+                          widget.message,
                           style: TextStyle(
                               fontSize: 17,
-                              color: isMe ? Colors.white : Colors.black),
+                              color: widget.isMe ? Colors.white : Colors.black),
                         ))
                     : Container(
                         margin: const EdgeInsets.only(right: 20, top: 10),
-                        child: type == "link"
+                        child: widget.type == "link"
                             ? Container(
                                 padding: const EdgeInsets.all(16),
                                 margin: const EdgeInsets.all(16),
                                 constraints:
                                     const BoxConstraints(maxWidth: 200),
                                 decoration: BoxDecoration(
-                                    color: isMe ? Colors.black : Colors.grey,
+                                    color: widget.isMe
+                                        ? Colors.black
+                                        : Colors.grey,
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(12))),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    await launchUrl(Uri.parse('$message'));
+                                    await launchUrl(
+                                        Uri.parse('${widget.message}'));
                                   },
                                   child: Text(
-                                    message,
+                                    widget.message,
                                     style: const TextStyle(
                                       fontStyle: FontStyle.italic,
                                       color: Colors.white,
@@ -75,53 +84,66 @@ class SingleMessage extends StatelessWidget {
                                   ),
                                 ),
                               )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                            : widget.type == "sticker"
+                                ? Container(
+                                    height: 100,
+                                    width: 100,
+                                    child: Image.network(widget.message),
+                                  )
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => ShowImage(
-                                                    imageUrl: message),
-                                              ));
-                                        },
-                                        child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.42,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.30,
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.black),
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                topRight: Radius.circular(18),
-                                                topLeft: Radius.circular(18),
-                                                bottomLeft: Radius.circular(18),
-                                              ),
-                                              image: DecorationImage(
-                                                  image: NetworkImage(message),
-                                                  fit: BoxFit.fill)),
-                                        ),
-                                      )
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ShowImage(
+                                                            imageUrl:
+                                                                widget.message),
+                                                  ));
+                                            },
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.42,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.30,
+                                              decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                      color: Colors.black),
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(18),
+                                                    topLeft:
+                                                        Radius.circular(18),
+                                                    bottomLeft:
+                                                        Radius.circular(18),
+                                                  ),
+                                                  image: DecorationImage(
+                                                      image: NetworkImage(
+                                                          widget.message),
+                                                      fit: BoxFit.fill)),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
                       ),
                 Padding(
                   padding: const EdgeInsets.only(right: 17),
                   child: Text(
-                    formattedTime,
+                    lastMessageTime!,
                     style: const TextStyle(color: Colors.grey),
                   ),
                 )

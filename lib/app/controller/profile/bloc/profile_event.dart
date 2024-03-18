@@ -27,3 +27,5 @@ class ProfileSaveToDbEvent extends ProfileEvent {
   final image;
   ProfileSaveToDbEvent({required this.image});
 }
+
+class DeleteButtonClickedEvent extends ProfileEvent{}

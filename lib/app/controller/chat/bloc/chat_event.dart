@@ -63,3 +63,21 @@ class VideoCallButtonClickedEvent extends ChatEvent {
     required this.friendId,
   });
 }
+
+class AudioCallButtonClickedEvent extends ChatEvent {
+  final String friendId;
+  AudioCallButtonClickedEvent({
+    required this.friendId,
+  });
+}
+
+class StickerSentEvent extends ChatEvent {
+  final String currentId;
+  final String friendId;
+  var message;
+  StickerSentEvent({
+    required this.currentId,
+    required this.friendId,
+    required this.message,
+  });
+}
