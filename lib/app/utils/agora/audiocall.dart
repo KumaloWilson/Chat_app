@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_import
+
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:chat_app/app/utils/constants/constants.dart';
 import 'package:chat_app/app/view/home/home.dart';

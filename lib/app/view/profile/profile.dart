@@ -5,11 +5,9 @@ import 'package:chat_app/app/utils/components/profilepageshimmer.dart';
 import 'package:chat_app/app/view/login/login.dart';
 import 'package:chat_app/app/view/profileupdate/profileupdate.dart';
 import 'package:enefty_icons/enefty_icons.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:shimmer/shimmer.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});

@@ -3,10 +3,9 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:chat_app/app/controller/home/bloc/home_bloc.dart';
 import 'package:chat_app/app/utils/agora/callpage.dart';
 import 'package:chat_app/app/utils/constants/notification.dart';
-import 'package:chat_app/app/view/callLog/calls.dart';
 import 'package:chat_app/app/view/chat/chat.dart';
 import 'package:chat_app/app/view/profile/profile.dart';
-import 'package:chat_app/app/view/status/status.dart';
+import 'package:chat_app/app/view/blogs/blog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,8 +24,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Widget> screens = <Widget>[
     const Chats(),
-    const CallLog(),
-    const Status(),
+    const Blogs(),
     const Profile(),
   ];
   User? user = FirebaseAuth.instance.currentUser;
@@ -126,10 +124,7 @@ class _HomeState extends State<Home> {
                   icon: Icon(Ionicons.chatbox_ellipses_outline),
                   label: 'chats'),
               BottomNavigationBarItem(
-                  icon: Icon(Ionicons.call_outline), label: 'calls'),
-              BottomNavigationBarItem(
-                  icon: Icon(Ionicons.people_circle_outline),
-                  label: 'contacts'),
+                  icon: Icon(Ionicons.folder_open_outline), label: 'Blogs'),
               BottomNavigationBarItem(
                   icon: Icon(Ionicons.person_outline), label: 'profile')
             ],

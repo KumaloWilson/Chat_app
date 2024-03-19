@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_type_check
+
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 

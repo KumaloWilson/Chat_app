@@ -28,10 +28,11 @@ class _ChatsState extends State<Chats> {
       listener: (context, state) {
         if (state is NavigatedSearchPageDoneState) {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Search(),
-              ));
+            context,
+            MaterialPageRoute(
+              builder: (context) => Search(),
+            ),
+          );
         }
       },
       child: Scaffold(
