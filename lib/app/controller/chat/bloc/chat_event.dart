@@ -81,3 +81,12 @@ class StickerSentEvent extends ChatEvent {
     required this.message,
   });
 }
+
+class ChattedFriendDeleteEvent extends ChatEvent {
+  final String currentUid;
+  final String friendId;
+  ChattedFriendDeleteEvent({
+    required this.currentUid,
+    required this.friendId,
+  });
+}

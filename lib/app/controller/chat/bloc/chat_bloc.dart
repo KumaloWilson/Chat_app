@@ -24,6 +24,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<VideoCallButtonClickedEvent>(videoCallButtonClickedEvent);
     on<AudioCallButtonClickedEvent>(audioCallButtonClickedEvent);
     on<StickerSentEvent>(stickerSentEvent);
+    on<ChattedFriendDeleteEvent>(chattedFriendDeleteEvent);
   }
 
   FutureOr<void> chatShareEvent(
@@ -371,5 +372,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .collection('messages')
         .doc(event.currentId)
         .set({'last_msg': event.message});
+  }
+
+  FutureOr<void> chattedFriendDeleteEvent(
+      ChattedFriendDeleteEvent event, Emitter<ChatState> emit) {
+    try {
+      FirebaseFirestore.instance
+          .collection('Users')
+          .doc(event.currentUid)
+          .collection('messages')
+          .doc(event.friendId)
+          .delete();
+      emit(ChattedUserDeletedState());
+    } catch (e) {
+      print(e);
+    }
   }
 }

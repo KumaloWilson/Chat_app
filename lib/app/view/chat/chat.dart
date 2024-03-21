@@ -33,6 +33,8 @@ class _ChatsState extends State<Chats> {
               builder: (context) => Search(),
             ),
           );
+        } else if (state is ChattedUserDeletedState) {
+          Navigator.pop(context);
         }
       },
       child: Scaffold(
@@ -66,6 +68,35 @@ class _ChatsState extends State<Chats> {
                       if (snapshot.hasData) {
                         var friend = snapshot.data;
                         return ListTile(
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Delete Chat'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this Chat?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        BlocProvider.of<ChatBloc>(context).add(
+                                            ChattedFriendDeleteEvent(
+                                                currentUid: user!.uid,
+                                                friendId: friendId));
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           trailing: StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('Users')
@@ -77,15 +108,19 @@ class _ChatsState extends State<Chats> {
                                 .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                final currentTime =
-                                    snapshot.data!.docs[index]['date'];
-                                lastMessageTime =
-                                    timeago.format(currentTime.toDate());
-                                return Text(
-                                  lastMessageTime!,
-                                  style: TextStyle(
-                                      color: Colors.grey[500], fontSize: 11),
-                                );
+                                final docs = snapshot.data!.docs;
+                                if (docs.isNotEmpty) {
+                                  final currentTime = docs[index]['date'];
+                                  lastMessageTime =
+                                      timeago.format(currentTime.toDate());
+                                  return Text(
+                                    lastMessageTime!,
+                                    style: TextStyle(
+                                        color: Colors.grey[500], fontSize: 10),
+                                  );
+                                } else {
+                                  return const SizedBox();
+                                }
                               }
                               return const CircularProgressIndicator();
                             },

@@ -29,3 +29,5 @@ class AudioCallWorkingState extends ChatState {
     required this.name,
   });
 }
+
+class ChattedUserDeletedState extends ChatState{}
