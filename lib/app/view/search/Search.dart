@@ -28,6 +28,15 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              size: 24,
+            )),
+        automaticallyImplyLeading: false,
         title: const Text("Search"),
       ),
       body: BlocConsumer<SearchBloc, SearchState>(

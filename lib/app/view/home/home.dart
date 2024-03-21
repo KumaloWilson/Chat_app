@@ -6,6 +6,7 @@ import 'package:chat_app/app/utils/constants/notification.dart';
 import 'package:chat_app/app/view/chat/chat.dart';
 import 'package:chat_app/app/view/profile/profile.dart';
 import 'package:chat_app/app/view/blogs/blog.dart';
+import 'package:chat_app/app/view/stories/stories.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,6 +26,7 @@ class _HomeState extends State<Home> {
   List<Widget> screens = <Widget>[
     const Chats(),
     const Blogs(),
+    const Stories(),
     const Profile(),
   ];
   User? user = FirebaseAuth.instance.currentUser;
@@ -125,6 +127,8 @@ class _HomeState extends State<Home> {
                   label: 'chats'),
               BottomNavigationBarItem(
                   icon: Icon(Ionicons.folder_open_outline), label: 'Blogs'),
+              BottomNavigationBarItem(
+                  icon: Icon(Ionicons.book_outline), label: 'stories'),
               BottomNavigationBarItem(
                   icon: Icon(Ionicons.person_outline), label: 'profile')
             ],

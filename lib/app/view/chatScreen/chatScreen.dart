@@ -45,6 +45,15 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  size: 24,
+                )),
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.grey[100],
             actions: [
               IconButton(

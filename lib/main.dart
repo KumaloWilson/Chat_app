@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:chat_app/app/controller/auth/bloc/auth_bloc.dart';
 import 'package:chat_app/app/controller/chat/bloc/chat_bloc.dart';

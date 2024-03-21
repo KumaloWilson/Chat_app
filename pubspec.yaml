@@ -65,6 +65,10 @@ dependencies:
   timeago: ^3.6.1
   random_string: ^2.3.1
   dotted_border: ^2.1.0
+  font_awesome_icon_class: ^0.0.6
+  circular_countdown_timer: ^0.2.3
+  eva_icons_flutter: ^3.1.0
+  page_transition: ^2.1.0
   
 
 dev_dependencies:

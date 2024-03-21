@@ -134,14 +134,6 @@ class _LoginPageState extends State<LoginPage> {
                             height: 25,
                           ),
                         ),
-                        const SizedBox(width: 25),
-                        SquareTile(
-                          onTap: () {},
-                          child: Image.asset(
-                            facebook,
-                            height: 25,
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 25),
