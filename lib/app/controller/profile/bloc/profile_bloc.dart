@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
@@ -108,17 +110,45 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   FutureOr<void> deleteButtonClickedEvent(
       DeleteButtonClickedEvent event, Emitter<ProfileState> emit) async {
     User? user = FirebaseAuth.instance.currentUser;
+
     try {
+      QuerySnapshot<Map<String, dynamic>> usersSnapshot =
+          await FirebaseFirestore.instance.collection('Users').get();
+
+      for (QueryDocumentSnapshot<Map<String, dynamic>> userSnapshot
+          in usersSnapshot.docs) {
+        String userId = userSnapshot.id;
+
+        // Delete messages document for current user
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('messages')
+            .doc(userId)
+            .delete();
+
+        // Delete chats document for current user
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userId)
+            .collection('messages')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .delete();
+      }
+
+      // Delete user account
       if (user != null) {
-        user.delete();
+        await user.delete();
         await FirebaseFirestore.instance
             .collection('Users')
             .doc(user.uid)
             .delete();
-        emit(UserDeletedState());
       }
+
+      print('User account and associated data deleted successfully');
+      emit(UserDeletedState());
     } catch (e) {
-      print(e);
+      print('Error deleting user account and associated data: $e');
     }
   }
 }
