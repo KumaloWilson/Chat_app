@@ -110,7 +110,8 @@ class _ChatsState extends State<Chats> {
                               if (snapshot.hasData) {
                                 final docs = snapshot.data!.docs;
                                 if (docs.isNotEmpty) {
-                                  final currentTime = docs[index]['date'];
+                                  final lastMessageDoc = docs.first;
+                                  final currentTime = lastMessageDoc['date'];
                                   lastMessageTime =
                                       timeago.format(currentTime.toDate());
                                   return Text(
